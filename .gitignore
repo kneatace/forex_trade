@@ -1,0 +1,12 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+airflow_venv/
+.env
+
+#files
+*.csv
+*.xlsx

@@ -1,31 +1,25 @@
 import mysql.connector
+from dotenv import load_dotenv
+import os
 import pandas as pd
 
-# -----------------------------
-# 1️⃣ MySQL connection setup
-# -----------------------------
+#Mysql connection setup
+load_dotenv()
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",        # your MySQL password
-    database="forex_trade"
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME")
 )
-
-# -----------------------------
-# 2️⃣ Query the table
-# -----------------------------
-query = "SELECT * FROM forex_rate WHERE currency_code='USD';"
+#Query the table
+query = "select * from forex_rate where currency_code='USD';"
 
 df = pd.read_sql(query, con=db)
 
-# -----------------------------
-# 3️⃣ Export to CSV
-# -----------------------------
+#Export to CSV
 csv_file = "forex_usd_npr.csv"
 df.to_csv(csv_file, index=False)
 print(f"Data exported to {csv_file} successfully!")
 
-# -----------------------------
-# 4️⃣ Close DB connection
-# -----------------------------
+#Close database connection
 db.close()
