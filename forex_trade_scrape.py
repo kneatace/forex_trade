@@ -3,22 +3,18 @@ import mysql.connector
 from datetime import datetime, timedelta, date
 import time
 
-# -----------------------------
-# MySQL connection setup
-# -----------------------------
+# Mysql connection setup
 db = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="",        # your MySQL password
+    password="",    
     database="forex_trade"
 )
 cursor = db.cursor()
 
-# -----------------------------
 # Create table if not exists
-# -----------------------------
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS forex_rate (
+create table if not exists forex_rate (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     rate_date DATE NOT NULL,
     currency_code CHAR(3) NOT NULL,
@@ -33,20 +29,16 @@ CREATE TABLE IF NOT EXISTS forex_rate (
 """)
 db.commit()
 
-# -----------------------------
 # NRB Forex API settings
-# -----------------------------
-API_URL = "https://www.nrb.org.np/api/forex/v1/rates"  # NRB API endpoint
+API_URL = "https://www.nrb.org.np/api/forex/v1/rates"
 PER_PAGE = 100
 START_DATE = datetime(2014, 1, 1)
 END_DATE = datetime.today()
 
-# -----------------------------
 # Function to insert data
-# -----------------------------
 def insert_forex_rate(rate_date, currency_code, currency_name, unit, buying_rate, selling_rate):
     sql = """
-    INSERT INTO forex_rate
+    insert into forex_rate
     (rate_date, currency_code, currency_name, unit, buying_rate, selling_rate)
     VALUES (%s, %s, %s, %s, %s, %s)
     ON DUPLICATE KEY UPDATE
@@ -55,9 +47,7 @@ def insert_forex_rate(rate_date, currency_code, currency_name, unit, buying_rate
     """
     cursor.execute(sql, (rate_date, currency_code, currency_name, unit, buying_rate, selling_rate))
 
-# -----------------------------
-# Loop through years (or smaller chunks)
-# -----------------------------
+# Loop through years
 current_start = START_DATE
 while current_start <= END_DATE:
     # Fetch one year at a time
@@ -99,7 +89,7 @@ while current_start <= END_DATE:
             db.commit()
             print(f"Inserted page {page} for {current_start.date()} → {current_end.date()} with {len(payloads)} payloads.")
             page += 1
-            time.sleep(0.3)  # avoid API rate limits
+            time.sleep(0.3)  # avoid api rate limits
 
         except requests.RequestException as e:
             print(f"Request failed: {e}")
@@ -108,9 +98,7 @@ while current_start <= END_DATE:
     # Move to next year
     current_start = current_end + timedelta(days=1)
 
-# -----------------------------
 # Close DB connection
-# -----------------------------
 cursor.close()
 db.close()
 print("Extraction complete and DB connection closed.")
